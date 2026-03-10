@@ -72,7 +72,12 @@ const GitHubAPI = (() => {
     if (resp.status === 404) return null;
     if (!resp.ok) throw new Error(`Erro ao ler dados: ${resp.status}`);
     const json = await resp.json();
-    const decoded = atob(json.content);
+    const binaryStr = atob(json.content.replace(/\s/g, ''));
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+      bytes[i] = binaryStr.charCodeAt(i);
+    }
+    const decoded = new TextDecoder('utf-8').decode(bytes);
     const data = JSON.parse(decoded);
     return { data, sha: json.sha };
   }

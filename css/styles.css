@@ -2246,3 +2246,326 @@ input, button, select, textarea {
 .mt-16 { margin-top: 16px; }
 .mb-8 { margin-bottom: 8px; }
 .mb-16 { margin-bottom: 16px; }
+
+/* ============================================
+   RESPONSIVE — Mobile Android & PWA
+   ============================================ */
+
+/* Telas muito pequenas (320px - ex: Galaxy S3, iPhone SE 1st gen) */
+@media screen and (max-width: 359px) {
+  html {
+    font-size: 14px;
+  }
+
+  .screen {
+    padding: 16px 10px calc(var(--nav-height) + 16px);
+  }
+
+  .clock-time {
+    font-size: 2.4rem;
+    letter-spacing: 1px;
+  }
+
+  .timeline-content {
+    padding: 6px 10px;
+    min-height: 38px;
+  }
+
+  .timeline-label {
+    font-size: 0.8rem;
+    gap: 4px;
+  }
+
+  .timeline-hora {
+    font-size: 0.95rem;
+  }
+
+  .timeline-item {
+    gap: 10px;
+  }
+
+  .btn-ponto {
+    padding: 16px 18px;
+    min-height: 68px;
+  }
+
+  .btn-ponto-label {
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+  }
+
+  .home-stats {
+    gap: 4px;
+  }
+
+  .stat-item {
+    padding: 10px 6px;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+  }
+
+  .stat-value {
+    font-size: 0.8rem;
+  }
+
+  .hist-card {
+    padding: 10px 10px;
+    gap: 8px;
+  }
+
+  .hist-card-left {
+    min-width: 40px;
+  }
+
+  .hist-card-num {
+    font-size: 1.05rem;
+  }
+
+  .hist-card-times {
+    font-size: 0.78rem;
+    gap: 4px;
+  }
+
+  .hist-card-saldo {
+    font-size: 0.78rem;
+    min-width: 42px;
+  }
+
+  .hist-card-right {
+    gap: 4px;
+  }
+
+  .nav-btn {
+    padding: 6px 8px;
+    min-width: 48px;
+  }
+
+  .nav-label {
+    font-size: 0.58rem;
+  }
+
+  .nav-btn .nav-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .modal-content {
+    padding: 20px 14px;
+  }
+
+  .historico-summary {
+    gap: 6px;
+  }
+
+  .hist-summary-item {
+    padding: 10px 8px;
+  }
+
+  .hist-summary-value {
+    font-size: 0.95rem;
+  }
+
+  .filter-btn {
+    padding: 6px 10px;
+    font-size: 0.72rem;
+  }
+
+  .resumo-cards {
+    gap: 6px;
+  }
+
+  .resumo-card {
+    padding: 10px;
+  }
+
+  .resumo-card-value {
+    font-size: 1rem;
+  }
+
+  .resumo-card.highlight .resumo-card-value {
+    font-size: 1.3rem;
+  }
+
+  .ajuste-day-header {
+    padding: 10px 12px;
+  }
+
+  .ajuste-batida-card {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .ajuste-batida-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .ajuste-batida-icon i {
+    width: 14px;
+    height: 14px;
+  }
+
+  .ajuste-batida-tipo {
+    font-size: 0.78rem;
+  }
+
+  .ajuste-batida-hint {
+    font-size: 0.65rem;
+  }
+
+  .ajuste-batida-hora {
+    font-size: 1rem;
+    gap: 4px;
+  }
+
+  .ajuste-tip {
+    padding: 10px 12px;
+    font-size: 0.72rem;
+  }
+
+  .ajuste-history-item {
+    padding: 8px 10px;
+    font-size: 0.72rem;
+  }
+
+  .setup-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .config-section h3 {
+    font-size: 0.82rem;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.82rem;
+  }
+
+  .tp-wheel {
+    width: 60px;
+  }
+
+  .tp-item {
+    font-size: 1.1rem;
+  }
+
+  .tp-item.active {
+    font-size: 1.3rem;
+  }
+}
+
+/* Telas pequenas-medias (360px-389px - Galaxy S8, Pixel, etc) */
+@media screen and (min-width: 360px) and (max-width: 389px) {
+  .clock-time {
+    font-size: 2.8rem;
+  }
+
+  .screen {
+    padding: 18px 12px calc(var(--nav-height) + 20px);
+  }
+
+  .ajuste-batida-card {
+    padding: 12px 14px;
+  }
+
+  .ajuste-batida-tipo {
+    font-size: 0.82rem;
+  }
+
+  .ajuste-batida-hora {
+    font-size: 1.1rem;
+  }
+
+  .hist-card {
+    padding: 12px 12px;
+    gap: 10px;
+  }
+
+  .hist-card-times {
+    font-size: 0.82rem;
+  }
+}
+
+/* Telas medias (390px-413px - iPhone 12/13/14, Pixel 6) */
+@media screen and (min-width: 390px) and (max-width: 413px) {
+  .clock-time {
+    font-size: 3rem;
+  }
+}
+
+/* Ajustes PWA standalone */
+@media (display-mode: standalone) {
+  .screen {
+    padding-top: max(env(safe-area-inset-top, 0px), 16px);
+    padding-bottom: calc(var(--nav-height) + max(env(safe-area-inset-bottom, 0px), 16px));
+  }
+
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .setup-container {
+    padding-top: max(env(safe-area-inset-top, 0px), 24px);
+  }
+}
+
+/* Landscape em telefones */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .clock-time {
+    font-size: 2rem;
+  }
+
+  .clock-section {
+    margin-bottom: 12px;
+  }
+
+  .timeline-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .timeline-item {
+    padding: 6px 0;
+  }
+
+  .btn-ponto {
+    padding: 12px 20px;
+    min-height: 56px;
+  }
+
+  .tp-wheel {
+    height: 150px;
+    padding: 55px 0;
+  }
+}
+
+/* Overflow helpers — evita quebra de layout em telas pequenas */
+.ajuste-batida-info {
+  overflow: hidden;
+}
+
+.ajuste-batida-tipo,
+.ajuste-batida-hint {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ajuste-history-text {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.hist-card-times {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detalhe-obs-item {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}

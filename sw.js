@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pontoclt-v8';
+const CACHE_NAME = 'pontoclt-v9';
 const STATIC_ASSETS = [
   './',
   './index.html',
