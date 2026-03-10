@@ -683,8 +683,8 @@ const UI = (() => {
   async function ensurePdfLibs() {
     if (window.jspdf && typeof window.jspdf.jsPDF === 'function') return true;
     try {
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js');
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js');
+      await loadScript('./js/vendor/jspdf.umd.min.js');
+      await loadScript('./js/vendor/jspdf.plugin.autotable.min.js');
       return !!(window.jspdf && typeof window.jspdf.jsPDF === 'function');
     } catch (e) {
       return false;

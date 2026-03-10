@@ -7,6 +7,7 @@ const DB = (() => {
   const STORAGE_KEY = 'pontoclt_data';
   const SHA_KEY = 'pontoclt_sha';
   const LAST_SYNC_KEY = 'pontoclt_last_sync';
+  const CONFIG_DIRTY_KEY = 'pontoclt_config_dirty';
 
   /** Estrutura padrão */
   function defaultData() {
@@ -52,6 +53,7 @@ const DB = (() => {
     const data = load();
     data.config = { ...data.config, ...config };
     save(data);
+    localStorage.setItem(CONFIG_DIRTY_KEY, '1');
   }
 
   /** Retorna todos os registros */
@@ -149,8 +151,9 @@ const DB = (() => {
     save(data);
   }
 
-  /** Verifica se há registros pendentes de sync */
+  /** Verifica se há registros ou config pendentes de sync */
   function hasPendingSync() {
+    if (localStorage.getItem(CONFIG_DIRTY_KEY)) return true;
     const registros = getRegistros();
     return Object.values(registros).some((r) => r.sincronizado === false);
   }
@@ -246,6 +249,7 @@ const DB = (() => {
 
       save(dataToSave);
       setLastSync();
+      localStorage.removeItem(CONFIG_DIRTY_KEY);
       return { ok: true };
     } catch (err) {
       return { ok: false, error: err.message };
@@ -261,7 +265,12 @@ const DB = (() => {
   function importAll(jsonStr) {
     const data = JSON.parse(jsonStr);
     if (!data.version || !data.registros) throw new Error('Formato inválido');
+    // Marca todos como não-sincronizados para forçar push ao GitHub
+    for (const reg of Object.values(data.registros)) {
+      reg.sincronizado = false;
+    }
     save(data);
+    localStorage.setItem(CONFIG_DIRTY_KEY, '1');
   }
 
   /** Limpa dados locais */

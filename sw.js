@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pontoclt-v7';
+const CACHE_NAME = 'pontoclt-v8';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -10,6 +10,8 @@ const STATIC_ASSETS = [
   './js/calculator.js',
   './js/ui.js',
   './js/utils.js',
+  './js/vendor/jspdf.umd.min.js',
+  './js/vendor/jspdf.plugin.autotable.min.js',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png'
 ];

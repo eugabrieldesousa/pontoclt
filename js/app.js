@@ -133,6 +133,7 @@
           DB.importAll(reader.result);
           UI.toast('Dados importados!', 'success');
           UI.renderConfig();
+          autoSync();
         } catch (err) {
           UI.toast(`Erro: ${err.message}`, 'error');
         }
