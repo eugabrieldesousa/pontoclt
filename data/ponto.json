@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "config": {
+    "jornadaHoras": 8,
+    "intervaloMinutos": 60,
+    "toleranciaMinutos": 10,
+    "horaExtraPercentual": 50,
+    "adicionalNoturnoPercentual": 20,
+    "salarioBase": null,
+    "diasTrabalhados": [1,2,3,4,5],
+    "dataInicioBancoHoras": null
+  },
+  "registros": {}
+}

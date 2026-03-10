@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0A0F">
+  <meta name="description" content="Controle de ponto pessoal para CLT">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>PontoCLT</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ============ SETUP ============ -->
+    <section id="screen-setup" class="screen" style="display:none;">
+      <div class="setup-container">
+        <div class="setup-header">
+          <div class="logo-icon"><i data-lucide="fingerprint"></i></div>
+          <h1>PontoCLT</h1>
+          <p class="setup-subtitle">Controle de ponto pessoal</p>
+        </div>
+        <form class="setup-form" id="setup-form">
+          <div class="form-group">
+            <label for="setup-owner">Owner (GitHub)</label>
+            <div class="input-wrapper">
+              <i data-lucide="user" class="input-icon"></i>
+              <input type="text" id="setup-owner" placeholder="seu-usuario" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="setup-repo">Repositorio</label>
+            <div class="input-wrapper">
+              <i data-lucide="folder-git-2" class="input-icon"></i>
+              <input type="text" id="setup-repo" placeholder="pontoclt" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="setup-token">Token (fine-grained)</label>
+            <div class="input-wrapper">
+              <i data-lucide="key-round" class="input-icon"></i>
+              <input type="password" id="setup-token" placeholder="github_pat_..." required>
+            </div>
+            <span class="form-hint">Settings > Developer settings > Fine-grained tokens</span>
+          </div>
+          <div class="setup-actions">
+            <button type="button" class="btn btn-secondary" id="btn-test-connection">
+              <i data-lucide="wifi" class="btn-icon"></i> Testar
+            </button>
+            <button type="submit" class="btn btn-primary" id="btn-setup-start" disabled>
+              <i data-lucide="arrow-right" class="btn-icon"></i> Iniciar
+            </button>
+          </div>
+          <div id="setup-status" class="setup-status"></div>
+        </form>
+        <div class="setup-disclaimer">
+          <p><i data-lucide="shield-check" class="inline-icon"></i> Seus dados ficam no seu repositorio GitHub. Nenhum servidor externo envolvido.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOME ============ -->
+    <section id="screen-home" class="screen" style="display:none;">
+      <div class="home-container">
+
+        <!-- Header -->
+        <div class="home-header">
+          <button class="sync-btn" id="sync-indicator" title="Sincronizar">
+            <i data-lucide="check-circle"></i>
+          </button>
+          <div class="date-display">
+            <span class="day-name" id="home-day-name">Segunda-feira</span>
+            <span class="date-full" id="home-date-full">10 de marco de 2026</span>
+          </div>
+        </div>
+
+        <!-- Clock -->
+        <div class="clock-section">
+          <div class="clock-display" id="clock-display">
+            <span class="clock-time" id="clock-time">08:00</span>
+          </div>
+          <div class="clock-label" id="clock-label">Horario atual</div>
+        </div>
+
+        <!-- Timeline das batidas -->
+        <div class="timeline-card">
+          <div class="timeline">
+            <div class="timeline-item" data-tipo="entrada">
+              <div class="timeline-dot"></div>
+              <div class="timeline-line"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">
+                  <i data-lucide="log-in" class="timeline-icon"></i>
+                  <span>Entrada</span>
+                </div>
+                <span class="timeline-hora" id="batida-entrada">--:--</span>
+              </div>
+            </div>
+            <div class="timeline-item" data-tipo="saidaAlmoco">
+              <div class="timeline-dot"></div>
+              <div class="timeline-line"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">
+                  <i data-lucide="utensils" class="timeline-icon"></i>
+                  <span>Saida almoco</span>
+                </div>
+                <span class="timeline-hora" id="batida-saidaAlmoco">--:--</span>
+              </div>
+            </div>
+            <div class="timeline-item" data-tipo="voltaAlmoco">
+              <div class="timeline-dot"></div>
+              <div class="timeline-line"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">
+                  <i data-lucide="coffee" class="timeline-icon"></i>
+                  <span>Volta almoco</span>
+                </div>
+                <span class="timeline-hora" id="batida-voltaAlmoco">--:--</span>
+              </div>
+            </div>
+            <div class="timeline-item last" data-tipo="saida">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">
+                  <i data-lucide="log-out" class="timeline-icon"></i>
+                  <span>Saida</span>
+                </div>
+                <span class="timeline-hora" id="batida-saida">--:--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-section" id="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Progresso da jornada</span>
+            <span class="progress-value" id="progress-value">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Botao Bater Ponto -->
+        <button class="btn-ponto" id="btn-bater-ponto">
+          <i data-lucide="fingerprint" class="btn-ponto-icon"></i>
+          <span class="btn-ponto-label">BATER PONTO</span>
+          <span class="btn-ponto-tipo" id="btn-ponto-tipo">Entrada</span>
+        </button>
+
+        <!-- Stats -->
+        <div class="home-stats">
+          <div class="stat-item">
+            <span class="stat-label"><i data-lucide="clock" class="stat-icon"></i> Trabalhadas</span>
+            <span class="stat-value" id="stat-trabalhadas">0h00</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label"><i data-lucide="scale" class="stat-icon"></i> Saldo</span>
+            <span class="stat-value" id="stat-saldo">--</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label"><i data-lucide="activity" class="stat-icon"></i> Status</span>
+            <span class="stat-value" id="stat-status">--</span>
+          </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="home-alerts" id="home-alerts"></div>
+      </div>
+    </section>
+
+    <!-- ============ HISTORICO ============ -->
+    <section id="screen-historico" class="screen" style="display:none;">
+      <div class="historico-container">
+        <div class="historico-header">
+          <button class="btn-nav" id="hist-prev"><i data-lucide="chevron-left"></i></button>
+          <span class="month-label" id="hist-month-label">Marco 2026</span>
+          <button class="btn-nav" id="hist-next"><i data-lucide="chevron-right"></i></button>
+        </div>
+
+        <div class="historico-summary" id="hist-summary"></div>
+
+        <div class="historico-filters">
+          <button class="filter-btn active" data-filter="todos">Todos</button>
+          <button class="filter-btn" data-filter="extras">Extras</button>
+          <button class="filter-btn" data-filter="faltas">Faltas</button>
+          <button class="filter-btn" data-filter="pendentes">Pendentes</button>
+        </div>
+
+        <div class="historico-list" id="historico-list"></div>
+      </div>
+    </section>
+
+    <!-- ============ RESUMO ============ -->
+    <section id="screen-resumo" class="screen" style="display:none;">
+      <div class="resumo-container">
+        <div class="resumo-header">
+          <button class="btn-nav" id="resumo-prev"><i data-lucide="chevron-left"></i></button>
+          <span class="month-label" id="resumo-month-label">Marco 2026</span>
+          <button class="btn-nav" id="resumo-next"><i data-lucide="chevron-right"></i></button>
+        </div>
+
+        <div class="resumo-cards" id="resumo-cards"></div>
+
+        <div class="resumo-chart" id="resumo-chart"></div>
+
+        <div class="resumo-alerts" id="resumo-alerts"></div>
+
+        <button class="btn btn-primary btn-full" id="btn-exportar-resumo">
+          <i data-lucide="file-down" class="btn-icon"></i> Baixar PDF
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ CONFIG ============ -->
+    <section id="screen-config" class="screen" style="display:none;">
+      <div class="config-container">
+        <h2><i data-lucide="settings" class="section-icon"></i> Configuracoes</h2>
+
+        <div class="config-section">
+          <h3><i data-lucide="briefcase" class="section-icon-sm"></i> Jornada</h3>
+          <div class="form-group">
+            <label>Horas/dia</label>
+            <div class="jornada-time-input">
+              <div class="jornada-field-wrap">
+                <input type="number" id="cfg-jornada-h" value="8" min="0" max="23" inputmode="numeric">
+                <span class="jornada-unit">h</span>
+              </div>
+              <span class="jornada-sep">:</span>
+              <div class="jornada-field-wrap">
+                <input type="number" id="cfg-jornada-m" value="0" min="0" max="59" inputmode="numeric">
+                <span class="jornada-unit">min</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="cfg-jornada-semanal">Horas/semana</label>
+            <input type="number" id="cfg-jornada-semanal" value="44" min="1" max="99" step="0.5">
+          </div>
+          <div class="form-group">
+            <label for="cfg-intervalo">Intervalo almoco (min)</label>
+            <input type="number" id="cfg-intervalo" value="60" min="30" max="120">
+          </div>
+          <div class="form-group">
+            <label>Dias trabalhados</label>
+            <div class="dias-semana-grid" id="cfg-dias-trabalhados">
+              <label class="dia-check"><input type="checkbox" value="1" checked><span>Seg</span></label>
+              <label class="dia-check"><input type="checkbox" value="2" checked><span>Ter</span></label>
+              <label class="dia-check"><input type="checkbox" value="3" checked><span>Qua</span></label>
+              <label class="dia-check"><input type="checkbox" value="4" checked><span>Qui</span></label>
+              <label class="dia-check"><input type="checkbox" value="5" checked><span>Sex</span></label>
+              <label class="dia-check"><input type="checkbox" value="6"><span>Sab</span></label>
+              <label class="dia-check"><input type="checkbox" value="0"><span>Dom</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-section">
+          <h3><i data-lucide="timer" class="section-icon-sm"></i> Banco de Horas</h3>
+          <div class="form-group">
+            <label for="cfg-data-inicio">Data de inicio</label>
+            <div class="custom-datepicker" id="cfg-data-inicio-picker">
+              <div class="datepicker-display" id="cfg-data-inicio-display">
+                <span class="datepicker-text" id="cfg-data-inicio-text">Selecionar data</span>
+                <i data-lucide="calendar" class="datepicker-icon"></i>
+              </div>
+              <div class="datepicker-dropdown" id="cfg-data-inicio-dropdown" style="display:none;">
+                <div class="datepicker-nav">
+                  <button type="button" class="btn-nav datepicker-prev" id="dp-prev"><i data-lucide="chevron-left"></i></button>
+                  <span class="datepicker-month-label" id="dp-month-label"></span>
+                  <button type="button" class="btn-nav datepicker-next" id="dp-next"><i data-lucide="chevron-right"></i></button>
+                </div>
+                <div class="datepicker-weekdays">
+                  <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                </div>
+                <div class="datepicker-days" id="dp-days"></div>
+                <button type="button" class="btn btn-sm datepicker-clear" id="dp-clear">Limpar</button>
+              </div>
+            </div>
+            <input type="hidden" id="cfg-data-inicio">
+            <span class="form-hint">Data a partir da qual o saldo acumulado sera calculado</span>
+          </div>
+          <div class="banco-horas-info" id="cfg-banco-horas-info"></div>
+        </div>
+
+        <div class="config-section">
+          <h3><i data-lucide="github" class="section-icon-sm"></i> GitHub</h3>
+          <div class="form-group">
+            <label for="cfg-owner">Owner</label>
+            <input type="text" id="cfg-owner">
+          </div>
+          <div class="form-group">
+            <label for="cfg-repo">Repositorio</label>
+            <input type="text" id="cfg-repo">
+          </div>
+          <div class="form-group">
+            <label for="cfg-token">Token</label>
+            <input type="password" id="cfg-token">
+          </div>
+          <div class="config-actions">
+            <button type="button" class="btn btn-secondary" id="btn-cfg-test">
+              <i data-lucide="wifi" class="btn-icon"></i> Testar conexao
+            </button>
+            <button type="button" class="btn btn-secondary" id="btn-cfg-sync">
+              <i data-lucide="refresh-cw" class="btn-icon"></i> Sincronizar agora
+            </button>
+          </div>
+          <div class="sync-status-info" id="cfg-sync-status">Nunca sincronizado</div>
+        </div>
+
+        <div class="config-section">
+          <h3><i data-lucide="palette" class="section-icon-sm"></i> Aparencia</h3>
+          <div class="form-group">
+            <label for="cfg-theme">Tema</label>
+            <select id="cfg-theme">
+              <option value="dark">Escuro</option>
+              <option value="light">Claro</option>
+              <option value="auto">Automatico</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="config-section">
+          <h3><i data-lucide="database" class="section-icon-sm"></i> Dados</h3>
+          <div class="config-actions">
+            <button type="button" class="btn btn-secondary" id="btn-cfg-export">
+              <i data-lucide="download" class="btn-icon"></i> Exportar dados
+            </button>
+            <label class="btn btn-secondary btn-file-label" for="btn-cfg-import">
+              <i data-lucide="upload" class="btn-icon"></i> Importar dados
+            </label>
+            <input type="file" id="btn-cfg-import" accept=".json" style="display:none;">
+            <button type="button" class="btn btn-danger" id="btn-cfg-clear">
+              <i data-lucide="trash-2" class="btn-icon"></i> Limpar todos os dados
+            </button>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full mt-16" id="btn-cfg-save">
+          <i data-lucide="save" class="btn-icon"></i> Salvar configuracoes
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ AJUSTE ============ -->
+    <section id="screen-ajuste" class="screen" style="display:none;">
+      <div class="ajuste-container">
+        <h2><i data-lucide="edit-3" class="section-icon"></i> Ajuste de Ponto</h2>
+        <p class="ajuste-subtitle">Corrija ou registre batidas esquecidas</p>
+
+        <!-- Date picker -->
+        <div class="ajuste-date-section">
+          <label class="ajuste-label">Selecione o dia</label>
+          <div class="custom-datepicker" id="ajuste-datepicker">
+            <div class="datepicker-display" id="ajuste-date-display">
+              <span class="datepicker-text" id="ajuste-date-text">Selecionar data</span>
+              <i data-lucide="calendar" class="datepicker-icon"></i>
+            </div>
+            <div class="datepicker-dropdown" id="ajuste-date-dropdown" style="display:none;">
+              <div class="datepicker-nav">
+                <button type="button" class="btn-nav datepicker-prev" id="ajuste-dp-prev"><i data-lucide="chevron-left"></i></button>
+                <span class="datepicker-month-label" id="ajuste-dp-month-label"></span>
+                <button type="button" class="btn-nav datepicker-next" id="ajuste-dp-next"><i data-lucide="chevron-right"></i></button>
+              </div>
+              <div class="datepicker-weekdays">
+                <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+              </div>
+              <div class="datepicker-days" id="ajuste-dp-days"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Batidas do dia selecionado -->
+        <div class="ajuste-batidas" id="ajuste-batidas" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- ============ MODALS ============ -->
+
+    <!-- Modal Detalhe -->
+    <div class="modal" id="modal-detalhe" style="display:none;">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modal-detalhe-title">Detalhe do dia</h2>
+          <button class="btn-close" id="modal-detalhe-close"><i data-lucide="x"></i></button>
+        </div>
+        <div id="modal-detalhe-body"></div>
+      </div>
+    </div>
+
+    <!-- Modal Edit -->
+    <div class="modal" id="modal-edit" style="display:none;">
+      <div class="modal-overlay"></div>
+      <div class="modal-content modal-small">
+        <div class="modal-header">
+          <h2>Editar horario</h2>
+          <button class="btn-close" id="modal-edit-close"><i data-lucide="x"></i></button>
+        </div>
+        <div class="form-group" style="text-align:center;">
+          <label id="modal-edit-label" style="font-size:0.85rem;margin-bottom:12px;display:block;">Entrada</label>
+          <div class="time-picker-inline">
+            <div class="tp-wheels">
+              <div class="tp-wheel" id="tp-edit-hours"></div>
+              <div class="tp-colon">:</div>
+              <div class="tp-wheel" id="tp-edit-minutes"></div>
+            </div>
+            <div class="tp-highlight-bar"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="modal-edit-save">
+            <i data-lucide="check" class="btn-icon"></i> Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Ajuste -->
+    <div class="modal" id="modal-ajuste" style="display:none;">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Ajustar horario</h2>
+          <button class="btn-close" id="modal-ajuste-close"><i data-lucide="x"></i></button>
+        </div>
+        <div class="form-group" style="text-align:center;">
+          <label id="modal-ajuste-label" style="font-size:0.85rem;margin-bottom:12px;display:block;">Entrada</label>
+          <div class="time-picker-inline">
+            <div class="tp-wheels">
+              <div class="tp-wheel" id="tp-ajuste-hours"></div>
+              <div class="tp-colon">:</div>
+              <div class="tp-wheel" id="tp-ajuste-minutes"></div>
+            </div>
+            <div class="tp-highlight-bar"></div>
+          </div>
+        </div>
+        <div class="form-group ajuste-obs-group">
+          <label for="ajuste-obs-input" class="ajuste-obs-label">
+            <i data-lucide="message-square" class="inline-icon"></i> Motivo do ajuste <span class="ajuste-required">*obrigatorio</span>
+          </label>
+          <textarea id="ajuste-obs-input" class="ajuste-obs-textarea" placeholder="Ex: Esqueci de bater o ponto na entrada" rows="3" maxlength="200"></textarea>
+          <div class="ajuste-obs-counter"><span id="ajuste-obs-count">0</span>/200</div>
+          <div class="ajuste-obs-error" id="ajuste-obs-error" style="display:none;">Informe o motivo do ajuste</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="modal-ajuste-remove" style="display:none;">
+            <i data-lucide="trash-2" class="btn-icon"></i> Limpar
+          </button>
+          <button class="btn btn-primary" id="modal-ajuste-save">
+            <i data-lucide="check" class="btn-icon"></i> Salvar ajuste
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ BOTTOM NAV ============ -->
+    <nav class="bottom-nav" id="bottom-nav" style="display:none;">
+      <button class="nav-btn active" data-screen="home">
+        <i data-lucide="home" class="nav-icon"></i>
+        <span class="nav-label">Ponto</span>
+      </button>
+      <button class="nav-btn" data-screen="ajuste">
+        <i data-lucide="edit-3" class="nav-icon"></i>
+        <span class="nav-label">Ajuste</span>
+      </button>
+      <button class="nav-btn" data-screen="historico">
+        <i data-lucide="calendar-days" class="nav-icon"></i>
+        <span class="nav-label">Historico</span>
+      </button>
+      <button class="nav-btn" data-screen="resumo">
+        <i data-lucide="bar-chart-3" class="nav-icon"></i>
+        <span class="nav-label">Resumo</span>
+      </button>
+      <button class="nav-btn" data-screen="config">
+        <i data-lucide="settings" class="nav-icon"></i>
+        <span class="nav-label">Config</span>
+      </button>
+    </nav>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" style="display:none;"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/github-api.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
