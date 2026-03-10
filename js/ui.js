@@ -670,11 +670,36 @@ const UI = (() => {
     renderResumo();
   }
 
-  function exportResumo() {
+  function loadScript(src) {
+    return new Promise(function(resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function ensurePdfLibs() {
+    if (window.jspdf && typeof window.jspdf.jsPDF === 'function') return true;
+    try {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js');
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js');
+      return !!(window.jspdf && typeof window.jspdf.jsPDF === 'function');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async function exportResumo() {
     if (resumoYear == null) initResumo();
     if (!window.jspdf) {
-      toast('Biblioteca PDF nao carregada', 'error');
-      return;
+      toast('Carregando biblioteca PDF...', 'info');
+      var loaded = await ensurePdfLibs();
+      if (!loaded) {
+        toast('Falha ao carregar biblioteca PDF. Verifique sua conexao.', 'error');
+        return;
+      }
     }
     const { jsPDF } = window.jspdf;
     const config = DB.getConfig();
