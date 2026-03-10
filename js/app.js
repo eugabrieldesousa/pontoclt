@@ -154,6 +154,14 @@
       }
     });
 
+    document.getElementById('btn-cfg-logout').addEventListener('click', () => {
+      if (confirm('Deseja sair? Suas credenciais serão removidas.')) {
+        GitHubAPI.clearCredentials();
+        UI.toast('Desconectado com sucesso', 'success');
+        UI.showSetup();
+      }
+    });
+
     // Edit modal
     document.getElementById('modal-edit-close').addEventListener('click', () => UI.closeModal('modal-edit'));
     document.getElementById('modal-edit-save').addEventListener('click', UI.saveEdit);

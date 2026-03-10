@@ -373,11 +373,10 @@ const UI = (() => {
     body.innerHTML = `
       <div class="detalhe-batidas">
         ${Calculator.SEQUENCE.map((tipo) => `
-          <div class="detalhe-row detalhe-row-editable" data-date="${dateStr}" data-tipo="${tipo}">
+          <div class="detalhe-row" data-date="${dateStr}" data-tipo="${tipo}">
             <span class="detalhe-row-label"><i data-lucide="${DETALHE_ICONS[tipo]}" class="detalhe-row-icon"></i> ${Calculator.LABELS[tipo]}</span>
             <span class="detalhe-row-value">
               ${reg[tipo] || '--:--'}
-              <i data-lucide="pencil" class="detalhe-edit-icon"></i>
             </span>
           </div>
         `).join('')}
@@ -398,15 +397,13 @@ const UI = (() => {
         ${extras > 0 ? `<div class="detalhe-stat-row"><span>Horas extras</span><span class="text-accent">${Utils.minutosParaDisplaySemSinal(extras)}</span></div>` : ''}
         ${def > 0 ? `<div class="detalhe-stat-row"><span>Deficit</span><span class="text-danger">${Utils.minutosParaDisplaySemSinal(def)}</span></div>` : ''}
       </div>
-
+      ${reg.obs ? `
+        <div class="detalhe-obs">
+          <div class="detalhe-obs-label"><i data-lucide="file-text" class="detalhe-row-icon"></i> Observacoes de ajuste</div>
+          ${reg.obs.split('\\n').filter(l => l.trim()).map(l => `<div class="detalhe-obs-item">${escapeHtml(l)}</div>`).join('')}
+        </div>
+      ` : ''}
     `;
-
-    body.querySelectorAll('.detalhe-row-editable').forEach((row) => {
-      row.addEventListener('click', () => {
-        closeModal('modal-detalhe');
-        openEditModal(row.dataset.date, row.dataset.tipo);
-      });
-    });
 
     openModal('modal-detalhe');
     refreshIcons();
@@ -780,6 +777,8 @@ const UI = (() => {
       const diaNum = d.getDate();
       const diaSem = Utils.diaCurto(dia);
 
+      const obsText = reg && reg.obs ? reg.obs.split('\n').filter(l => l.trim()).join('; ') : '';
+
       if (reg && Calculator.diaCompleto(reg)) {
         const trab = Calculator.horasTrabalhadasStatic(reg);
         const saldo = Calculator.saldoDia(reg, config);
@@ -788,35 +787,39 @@ const UI = (() => {
           reg.entrada || '--:--', reg.saidaAlmoco || '--:--',
           reg.voltaAlmoco || '--:--', reg.saida || '--:--',
           Utils.minutosParaDisplaySemSinal(trab),
-          saldo != null ? Utils.minutosParaDisplay(saldo) : '--'
+          saldo != null ? Utils.minutosParaDisplay(saldo) : '--',
+          obsText
         ]);
       } else if (reg && reg.entrada) {
         dailyData.push([
           String(diaNum), diaSem,
           reg.entrada || '--:--', reg.saidaAlmoco || '--:--',
           reg.voltaAlmoco || '--:--', reg.saida || '--:--',
-          '--', 'Incompleto'
+          '--', 'Incompleto',
+          obsText
         ]);
       } else if (isUtil) {
         dailyData.push([
           String(diaNum), diaSem,
-          '--:--', '--:--', '--:--', '--:--', '--', 'Sem registro'
+          '--:--', '--:--', '--:--', '--:--', '--', 'Sem registro',
+          ''
         ]);
       }
     }
 
     doc.autoTable({
       startY: y,
-      head: [['Dia', '', 'Entrada', 'Sa\u00edda Alm.', 'Volta Alm.', 'Sa\u00edda', 'Trab.', 'Saldo']],
+      head: [['Dia', '', 'Entrada', 'Sa\u00edda Alm.', 'Volta Alm.', 'Sa\u00edda', 'Trab.', 'Saldo', 'Obs.']],
       body: dailyData,
       theme: 'striped',
-      headStyles: { fillColor: [0, 135, 90], textColor: [255, 255, 255], fontSize: 7.5 },
-      styles: { fontSize: 7.5, cellPadding: 2.5 },
+      headStyles: { fillColor: [0, 135, 90], textColor: [255, 255, 255], fontSize: 7 },
+      styles: { fontSize: 7, cellPadding: 2 },
       columnStyles: {
-        0: { cellWidth: 12 }, 1: { cellWidth: 14 },
-        2: { cellWidth: 20 }, 3: { cellWidth: 22 },
-        4: { cellWidth: 22 }, 5: { cellWidth: 20 },
-        6: { cellWidth: 26 }, 7: { cellWidth: 26 }
+        0: { cellWidth: 10 }, 1: { cellWidth: 12 },
+        2: { cellWidth: 17 }, 3: { cellWidth: 17 },
+        4: { cellWidth: 17 }, 5: { cellWidth: 17 },
+        6: { cellWidth: 18 }, 7: { cellWidth: 18 },
+        8: { cellWidth: 56 }
       },
       margin: { left: 14, right: 14 }
     });

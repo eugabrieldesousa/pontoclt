@@ -1143,23 +1143,6 @@ input, button, select, textarea {
   gap: 8px;
 }
 
-.detalhe-row-editable {
-  cursor: pointer;
-  transition: background var(--transition);
-}
-
-.detalhe-row-editable:hover,
-.detalhe-row-editable:active {
-  background: var(--surface-3);
-}
-
-.detalhe-edit-icon {
-  width: 12px;
-  height: 12px;
-  color: var(--text-muted);
-  opacity: 0.6;
-}
-
 .detalhe-stats {
   display: flex;
   flex-direction: column;
@@ -1178,6 +1161,32 @@ input, button, select, textarea {
 .detalhe-stat-row span:last-child {
   font-family: var(--font-mono);
   font-weight: 600;
+}
+
+.detalhe-obs {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.detalhe-obs-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detalhe-obs-item {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--surface-3);
+}
+
+.detalhe-obs-item:last-child {
+  border-bottom: none;
 }
 
 /* ============================================

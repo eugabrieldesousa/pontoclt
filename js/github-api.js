@@ -21,6 +21,12 @@ const GitHubAPI = (() => {
     localStorage.setItem('gh_token', token);
   }
 
+  function clearCredentials() {
+    localStorage.removeItem('gh_owner');
+    localStorage.removeItem('gh_repo');
+    localStorage.removeItem('gh_token');
+  }
+
   function hasCredentials() {
     const c = getCredentials();
     return !!(c.owner && c.repo && c.token);
@@ -119,7 +125,7 @@ const GitHubAPI = (() => {
   }
 
   return {
-    getCredentials, setCredentials, hasCredentials,
+    getCredentials, setCredentials, clearCredentials, hasCredentials,
     testConnection, readData, writeData, initDataFile
   };
 })();
