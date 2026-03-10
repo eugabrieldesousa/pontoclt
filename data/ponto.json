@@ -20,7 +20,7 @@
     "2026-03-10": {
       "entrada": "07:30",
       "saidaAlmoco": "12:00",
-      "voltaAlmoco": null,
+      "voltaAlmoco": "13:28",
       "saida": null,
       "obs": "[Entrada] 07:30 — Esquecimento\n[Saída almoço] 12:00 — Esqueci de bater o ponto do almoco",
       "editado": true,
