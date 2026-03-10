@@ -16,5 +16,15 @@
     ],
     "dataInicioBancoHoras": null
   },
-  "registros": {}
+  "registros": {
+    "2026-03-10": {
+      "entrada": "07:30",
+      "saidaAlmoco": null,
+      "voltaAlmoco": null,
+      "saida": null,
+      "obs": "[Entrada] 07:30 — Esquecimento",
+      "editado": true,
+      "sincronizado": true
+    }
+  }
 }
