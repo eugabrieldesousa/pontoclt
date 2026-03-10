@@ -22,6 +22,7 @@
     } else {
       UI.showApp();
       autoSync();
+      startSyncTimer();
     }
 
     bindEvents();
@@ -31,7 +32,10 @@
   function bindEvents() {
     // Bottom nav
     document.querySelectorAll('.nav-btn').forEach((btn) => {
-      btn.addEventListener('click', () => UI.showScreen(btn.dataset.screen));
+      btn.addEventListener('click', () => {
+        UI.showScreen(btn.dataset.screen);
+        autoSync();
+      });
     });
 
     // Setup
@@ -156,6 +160,7 @@
 
     document.getElementById('btn-cfg-logout').addEventListener('click', () => {
       if (confirm('Deseja sair? Suas credenciais serão removidas.')) {
+        stopSyncTimer();
         GitHubAPI.clearCredentials();
         UI.toast('Desconectado com sucesso', 'success');
         UI.showSetup();
@@ -200,7 +205,21 @@
     UI.initAjusteTimePickerWheels();
 
     // Online/offline events
-    window.addEventListener('online', autoSync);
+    window.addEventListener('online', () => {
+      autoSync();
+      startSyncTimer();
+    });
+    window.addEventListener('offline', stopSyncTimer);
+
+    // Sync ao voltar para a aba/app
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        autoSync();
+        startSyncTimer();
+      } else {
+        stopSyncTimer();
+      }
+    });
   }
 
   function updateJornadaSemanal() {
@@ -259,6 +278,7 @@
       await Utils.sleep(500);
       UI.showApp();
       autoSync();
+      startSyncTimer();
     } catch (err) {
       statusEl.textContent = `✗ Erro: ${err.message}`;
       statusEl.className = 'setup-status error';
@@ -295,12 +315,43 @@
   }
 
   /* ---- Auto sync ---- */
+  let syncing = false;
+  let syncTimer = null;
+  const SYNC_INTERVAL = 2 * 60 * 1000; // 2 minutos
+
   async function autoSync() {
+    if (syncing) return;
     if (!GitHubAPI.hasCredentials() || !navigator.onLine) return;
-    if (!DB.hasPendingSync()) return;
-    const result = await DB.sync();
-    if (result.ok && UI.currentScreen() === 'home') {
-      UI.renderHome();
+
+    syncing = true;
+    try {
+      const result = await DB.sync();
+      if (result.ok) {
+        refreshCurrentScreen();
+      }
+    } finally {
+      syncing = false;
+    }
+  }
+
+  function refreshCurrentScreen() {
+    const screen = UI.currentScreen();
+    if (screen === 'home') UI.renderHome();
+    else if (screen === 'historico') UI.renderHistorico();
+    else if (screen === 'resumo') UI.renderResumo();
+    else if (screen === 'config') UI.renderConfig();
+    else if (screen === 'ajuste') UI.renderAjuste();
+  }
+
+  function startSyncTimer() {
+    stopSyncTimer();
+    syncTimer = setInterval(autoSync, SYNC_INTERVAL);
+  }
+
+  function stopSyncTimer() {
+    if (syncTimer) {
+      clearInterval(syncTimer);
+      syncTimer = null;
     }
   }
 

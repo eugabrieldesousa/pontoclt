@@ -195,13 +195,14 @@ const DB = (() => {
     return merged;
   }
 
-  /** Sincroniza com GitHub */
+  /** Sincroniza com GitHub. Sempre puxa dados remotos; só escreve se houver alterações locais. */
   async function sync() {
     if (!GitHubAPI.hasCredentials()) return { ok: false, error: 'Sem credenciais' };
     if (!navigator.onLine) return { ok: false, error: 'Offline' };
 
     try {
       const local = load();
+      const needsPush = hasPendingSync();
       const remote = await GitHubAPI.readData();
 
       let dataToSave;
@@ -220,31 +221,37 @@ const DB = (() => {
         reg.sincronizado = true;
       }
 
-      try {
-        const newSha = await GitHubAPI.writeData(
-          dataToSave, sha,
-          `Sync PontoCLT — ${new Date().toISOString()}`
-        );
-        setSha(newSha);
-      } catch (err) {
-        if (err.message === 'CONFLICT') {
-          // Conflito de SHA — re-ler e tentar merge novamente
-          const freshRemote = await GitHubAPI.readData();
-          if (freshRemote) {
-            const reMerged = mergeData(local, freshRemote.data);
-            for (const reg of Object.values(reMerged.registros)) {
-              reg.sincronizado = true;
+      // Só escreve no GitHub se houver alterações locais pendentes
+      if (needsPush) {
+        try {
+          const newSha = await GitHubAPI.writeData(
+            dataToSave, sha,
+            `Sync PontoCLT — ${new Date().toISOString()}`
+          );
+          setSha(newSha);
+        } catch (err) {
+          if (err.message === 'CONFLICT') {
+            // Conflito de SHA — re-ler e tentar merge novamente
+            const freshRemote = await GitHubAPI.readData();
+            if (freshRemote) {
+              const reMerged = mergeData(local, freshRemote.data);
+              for (const reg of Object.values(reMerged.registros)) {
+                reg.sincronizado = true;
+              }
+              const newSha = await GitHubAPI.writeData(
+                reMerged, freshRemote.sha,
+                `Sync PontoCLT (merge) — ${new Date().toISOString()}`
+              );
+              setSha(newSha);
+              dataToSave = reMerged;
             }
-            const newSha = await GitHubAPI.writeData(
-              reMerged, freshRemote.sha,
-              `Sync PontoCLT (merge) — ${new Date().toISOString()}`
-            );
-            setSha(newSha);
-            dataToSave = reMerged;
+          } else {
+            throw err;
           }
-        } else {
-          throw err;
         }
+      } else if (remote) {
+        // Apenas pull: atualiza SHA local sem escrever
+        setSha(remote.sha);
       }
 
       save(dataToSave);
