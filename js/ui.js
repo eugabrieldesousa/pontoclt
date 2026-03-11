@@ -911,6 +911,10 @@ const UI = (() => {
     const theme = localStorage.getItem('pontoclt_theme') || 'dark';
     document.getElementById('cfg-theme').value = theme;
 
+    // Love notifications
+    document.getElementById('cfg-love-notifications').checked = LoveNotifications.isEnabled();
+    document.getElementById('cfg-love-name').value = LoveNotifications.getName();
+
     refreshIcons();
   }
 

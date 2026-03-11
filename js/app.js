@@ -23,6 +23,7 @@
       UI.showApp();
       autoSync();
       startSyncTimer();
+      LoveNotifications.init();
     }
 
     bindEvents();
@@ -190,6 +191,20 @@
     // Theme
     document.getElementById('cfg-theme').addEventListener('change', (e) => {
       UI.applyTheme(e.target.value);
+    });
+
+    // Love notifications
+    document.getElementById('cfg-love-notifications').addEventListener('change', (e) => {
+      LoveNotifications.setEnabled(e.target.checked);
+      if (e.target.checked) {
+        LoveNotifications.schedulePeriodicNotification();
+        UI.toast('Notificacoes de amor ativadas!', 'success');
+      } else {
+        UI.toast('Notificacoes desativadas', '');
+      }
+    });
+    document.getElementById('cfg-love-name').addEventListener('input', (e) => {
+      LoveNotifications.setName(e.target.value.trim());
     });
 
     // Date picker

@@ -329,6 +329,25 @@
         </div>
 
         <div class="config-section">
+          <h3><i data-lucide="heart" class="section-icon-sm"></i> Notificacoes de Amor</h3>
+          <div class="form-group">
+            <label class="toggle-label">
+              <span>Receber mensagens carinhosas</span>
+              <div class="toggle-switch">
+                <input type="checkbox" id="cfg-love-notifications">
+                <span class="toggle-slider"></span>
+              </div>
+            </label>
+            <span class="form-hint">Receba notificacoes com mensagens do seu amor ao abrir o app e periodicamente</span>
+          </div>
+          <div class="form-group">
+            <label for="cfg-love-name">Nome do(a) amor</label>
+            <input type="text" id="cfg-love-name" placeholder="Ex: Meu amor, Gabriel, Bebe..." maxlength="30">
+            <span class="form-hint">Aparece nas notificacoes (opcional)</span>
+          </div>
+        </div>
+
+        <div class="config-section">
           <h3><i data-lucide="database" class="section-icon-sm"></i> Dados</h3>
           <div class="config-actions">
             <button type="button" class="btn btn-secondary" id="btn-cfg-export">
@@ -501,6 +520,7 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="js/vendor/jspdf.umd.min.js"></script>
   <script src="js/vendor/jspdf.plugin.autotable.min.js"></script>
+  <script src="js/love-notifications.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/calculator.js"></script>
   <script src="js/github-api.js"></script>

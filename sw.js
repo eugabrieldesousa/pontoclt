@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pontoclt-v9';
+const CACHE_NAME = 'pontoclt-v10';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const STATIC_ASSETS = [
   './js/db.js',
   './js/calculator.js',
   './js/ui.js',
+  './js/love-notifications.js',
   './js/utils.js',
   './js/vendor/jspdf.umd.min.js',
   './js/vendor/jspdf.plugin.autotable.min.js',
@@ -63,5 +64,64 @@ self.addEventListener('fetch', (event) => {
   // Cache-first for static assets
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
+  );
+});
+
+// Love notification via postMessage from app
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'LOVE_NOTIFICATION') {
+    self.registration.showNotification(event.data.title, {
+      body: event.data.body,
+      icon: './assets/icons/icon-192.png',
+      badge: './assets/icons/icon-192.png',
+      tag: 'love-notification',
+      renotify: true
+    });
+  }
+});
+
+// Periodic background sync for love notifications
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'love-notification') {
+    event.waitUntil(showPeriodicLoveNotification());
+  }
+});
+
+const LOVE_MESSAGES = [
+  'Seu namorado te ama muito! Tenha um otimo dia!',
+  'Voce e a pessoa mais incrivel do mundo!',
+  'So passando pra dizer que voce e maravilhoso(a)!',
+  'Pensando em voce agora... como sempre!',
+  'Nao esquece de tomar agua e lembrar que eu te amo!',
+  'Voce faz meus dias mais felizes!',
+  'Saudade de voce ja bateu... Te amo muito!',
+  'Voce e minha pessoa favorita nesse mundo todo!',
+  'Um beijo virtual pra aliviar o dia!',
+  'Vai dar tudo certo, amor! Estou sempre com voce!'
+];
+
+function showPeriodicLoveNotification() {
+  const msg = LOVE_MESSAGES[Math.floor(Math.random() * LOVE_MESSAGES.length)];
+  return self.registration.showNotification('Mensagem de Amor', {
+    body: msg,
+    icon: './assets/icons/icon-192.png',
+    badge: './assets/icons/icon-192.png',
+    tag: 'love-notification',
+    renotify: true
+  });
+}
+
+// Open app when notification is clicked
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clients) => {
+      for (const client of clients) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow('./');
+    })
   );
 });
